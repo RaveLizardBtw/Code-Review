@@ -16,9 +16,11 @@ namespace Vamp
         private Item item;
         private AudioSource activationAudio;
         private AudioSource readyAudio;
+        private SpellCastCharge vampSpell;
         public void Start()
         {
             item = GetComponent<Item>();
+            vampSpell = Catalog.GetData<SpellCastCharge>("Vamp");
             item.OnDespawnEvent += Item_OnDespawnEvent;
             item.OnHeldActionEvent += Item_OnHeldActionEvent;
             activationAudio = item.GetCustomReference("activationAudio").gameObject.GetComponent<AudioSource>();
@@ -38,6 +40,8 @@ namespace Vamp
         {
             if (eventTime == EventTime.OnStart)
             {
+                item.OnHeldActionEvent -= Item_OnHeldActionEvent;
+                item.OnDespawnEvent -= Item_OnDespawnEvent;
                 EventManager.onCreatureHit -= EventManager_onCreatureHit;
             }
         }
@@ -55,7 +59,7 @@ namespace Vamp
                 return;
             foreach (Imbue imbue in item.imbues)
             {
-                imbue.Transfer(Catalog.GetData<SpellCastCharge>("Vamp").Clone(), imbue.maxEnergy);
+                imbue.Transfer(vampSpell, imbue.maxEnergy);
             }
         }
         public IEnumerator Imbue()
